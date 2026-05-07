@@ -126,6 +126,17 @@ function renderList() {
 
 function selectFromHash() {
   const wanted = decodeURIComponent(location.hash.replace(/^#/, ""));
+  const sectionProfile = state.profiles.find((item) => wanted.startsWith(`${item.slug}-`));
+  if (sectionProfile) {
+    if (state.activeSlug !== sectionProfile.slug) {
+      state.activeSlug = sectionProfile.slug;
+      renderProfile(sectionProfile);
+      renderList();
+      requestAnimationFrame(() => document.getElementById(wanted)?.scrollIntoView());
+    }
+    return;
+  }
+
   const profile = state.profiles.find((item) => item.slug === wanted) || state.profiles[0];
   if (!profile) return;
   state.activeSlug = profile.slug;
@@ -150,7 +161,7 @@ function renderProfile(profile) {
   els.initials.textContent = initials || "F2";
   showPortrait(profile.image);
 
-  const rendered = renderMarkdown(profile.markdown);
+  const rendered = renderMarkdown(profile.markdown, profile.slug);
   els.content.innerHTML = rendered.html;
   els.toc.innerHTML = rendered.toc
     .filter((item) => item.level <= 3)
@@ -177,7 +188,7 @@ function showPortrait(src) {
   els.image.src = src;
 }
 
-function renderMarkdown(markdown) {
+function renderMarkdown(markdown, profileSlug) {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html = [];
   const toc = [];
@@ -233,7 +244,7 @@ function renderMarkdown(markdown) {
       const text = stripInline(heading[2].trim());
       const id = uniqueId(slugify(text), toc);
       toc.push({ level, text, id });
-      html.push(`<h${level} id="${state.activeSlug}-${id}">${inline(text)}</h${level}>`);
+      html.push(`<h${level} id="${profileSlug}-${id}">${inline(text)}</h${level}>`);
       continue;
     }
 
