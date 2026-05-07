@@ -19,42 +19,42 @@
 
 ## Ficha Técnica
 
-* **Nível**: 9
-* **Experiência**: 124/4500
+* **Nível**: 10
+* **Experiência**: 778/5000
 * **Classe de Personagem**: Maga
 * **Tipo de Classe**: Sábia
-* **Nível de Classe**: 6
+* **Nível de Classe**: 10
 
-* **HP**: 134 (d6)
-* **MP**: 130 (d10)
+* **HP**: 149 (d6)
+* **MP**: 149 (d10)
 
-* **Gil:** 1347
+* **Gil:** 1738
 
-### Atributos [Total: 48 pontos]
+### Atributos [Total: 49 pontos]
 
 * **Força**: 1 [Máximo: 15] [Valor de Teste: 13]
-* **Vitalidade**: 14 [Máximo: 15] [Valor de Teste: 52]*
+* **Vitalidade**: 14 [Máximo: 15] [Valor de Teste: 52]
 * **Agilidade**: 1 [Máximo: 20] [Valor de Teste: 13]
 * **Velocidade**: 8 [Máximo: 20] [Valor de Teste: 34]
 * **Magia**: 10 [Máximo: 25] [Valor de Teste: 40]
-* **Espírito**: 14 [Máximo: 25] [Valor de Teste: 52]
+* **Espírito**: 15 [Máximo: 25] [Valor de Teste: 55]*
 
 ### Estatísticas de Combate
 
 * **Evasão**: 9
-* **Evasão Mágica**: 24
+* **Evasão Mágica**: 25
 * **Armadura**: 5 + 35% = 6
-* **Armadura Mágica**: 10 + 35% = 13
-* **Destreza**: 58
-* **Mente**: 76
-* **Precisão**: 78
-* **Precisão Mágica**: 126
+* **Armadura Mágica**: 10 + 40% = 14
+* **Destreza**: 62
+* **Mente**: 80
+* **Precisão**: 86
+* **Precisão Mágica**: 140
 
 ### Equipamento
 
 * **Arma:** Tomo Empoeirado [2xMAG + 1d6]
 * **Escudo:** n/a
-* **Corpo:** Manto do Sereno [+3 ARM. +3 ARM. M.] [Imunidade: Silence]
+* **Corpo:** Mistle Robe [+3 ARM. +5 ARM. M.] [Imunidade: Silence]
 * **Cabeça:** Chapéu Vermelho [+1 ARM. +3 ARM. M.] [+10 PREC. M.]
 * **Mãos:** Pulseira Sorológica [+1 ARM. +2 ARM. M.] [Imunidade: Poison]
 * **Acessório**: n/a
@@ -91,7 +91,7 @@
 
 #### Saber
 
-* **Ensinar:** 66
+* **Ensinar:** 68
 * **Investigação:** 66
 * **Língua Comum:** 50
 * **Língua Antiga:** 66
@@ -123,7 +123,7 @@ n/a
 
 #### Perícias com Armas
 
-* **Cajados**: 50
+* **Espadas**: 64
 
 #### Selvagens
 
@@ -182,14 +182,6 @@ n/a
 * **Reflect**: sim.
 * **Descrição:** causa **(4xMAG + 1d8, Armadura Mágica)** de dano elemental por Eletricidade.
 
-##### Blizzard [7 MP]
-
-* **Escola:** vermelha
-* **Tipo:** Elemental (Gelo)
-* **Alvo:** único.
-* **Reflect**: sim.
-* **Descrição:** causa **(4xMAG + 1d8, Armadura Mágica)** de dano elemental por Gelo.
-
 ##### Fire [7 MP]
 * **Escola:** vermelha
 * **Tipo:** Elemental (Fogo)
@@ -206,11 +198,11 @@ n/a
 
 ### Inventário
 
-* 2x Poção [Restaura 50 HP] [Venda: 25 gil]]
+* 2x Poção [Restaura 50 HP] [Venda: 25 gil]
 * 4x Extrato [Restaura 15 MP] [Venda: 37 gil]
 * 1x Faca da Cegueira [2x(AGI/FOR) + d6] [Toque: Blind] [Venda: 66 gil]
 
 #### Materiais
 
 - 2x Língua de Flan [7 CP] [Tier 1] [Venda: 35 gil]
-- 1x  Barbatana Intacta [10 CP] [Tier 3] [Venda: 300 gil]
+- 1x Barbatana Intacta [10 CP] [Tier 3] [Venda: 300 gil]
