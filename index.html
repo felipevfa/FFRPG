@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FFRPG2 Fichas</title>
-    <meta name="description" content="Perfis de personagens e fichas de FFRPG2.">
+    <title>FFRPG2</title>
+    <meta name="description" content="Dashboard de fichas, bestiário e informações de FFRPG2.">
     <script>
       const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       let savedTheme = "";
@@ -19,11 +19,11 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar" aria-label="Lista de fichas">
+      <aside class="sidebar" aria-label="Navegação de FFRPG2">
         <header class="sidebar-header">
           <div>
             <p class="eyebrow">FFRPG2</p>
-            <h1>Fichas</h1>
+            <h1>Arquivo</h1>
           </div>
           <label class="theme-switch">
             <input id="theme-toggle" type="checkbox" aria-label="Alternar modo escuro">
@@ -33,10 +33,10 @@
 
         <label class="search-box">
           <span>Buscar</span>
-          <input id="profile-search" type="search" placeholder="Nome, classe, raça..." autocomplete="off">
+          <input id="profile-search" type="search" placeholder="Buscar no arquivo..." autocomplete="off">
         </label>
 
-        <nav id="profile-list" class="profile-list" aria-label="Personagens"></nav>
+        <nav id="profile-list" class="profile-list" aria-label="Itens do arquivo"></nav>
       </aside>
 
       <main class="profile-view">

@@ -1,14 +1,42 @@
-const profiles = [
-  { file: "FFRPG2/Fichas/Andrus Andradus.md" },
-  { file: "FFRPG2/Fichas/Anne.md" },
-  { file: "FFRPG2/Fichas/Clarence.md" },
-  { file: "FFRPG2/Fichas/Erya Orbless.md" },
-  { file: "FFRPG2/Fichas/Ordem do Céu.md" }
+const sections = [
+  {
+    slug: "fichas",
+    title: "Fichas",
+    path: "FFRPG2/Fichas",
+    description: "Personagens, guilda e fichas técnicas da campanha.",
+    files: [
+      "FFRPG2/Fichas/Andrus Andradus.md",
+      "FFRPG2/Fichas/Anne.md",
+      "FFRPG2/Fichas/Clarence.md",
+      "FFRPG2/Fichas/Erya Orbless.md",
+      "FFRPG2/Fichas/Ordem do Céu.md"
+    ]
+  },
+  {
+    slug: "bestiario",
+    title: "Bestiário",
+    path: "FFRPG2/Bestiário",
+    description: "Monstros e encontros, incluindo os arquivos nas subpastas.",
+    files: [
+      "FFRPG2/Bestiário/Amorfo/Flan (Azul).md",
+      "FFRPG2/Bestiário/Aquáticos/Sahagin.md",
+      "FFRPG2/Bestiário/Demônio/Lâmia.md",
+      "FFRPG2/Bestiário/Demônio/olho-flutuante.md",
+      "FFRPG2/Bestiário/Especiais/Lázaro.md",
+      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Arqueiro).md",
+      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Cavaleiro).md",
+      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Ladrão).md",
+      "FFRPG2/Bestiário/Humanóides/Bandido (Alquimista).md",
+      "FFRPG2/Bestiário/Humanóides/Bandido (Cavaleiro).md",
+      "FFRPG2/Bestiário/Humanóides/Goblin.md"
+    ]
+  }
 ];
 
 const state = {
-  profiles: [],
-  activeSlug: ""
+  documents: [],
+  activeSlug: "",
+  activeSection: ""
 };
 
 const els = {
@@ -28,10 +56,9 @@ init();
 
 async function init() {
   initTheme();
-  const loaded = await Promise.all(profiles.map(loadProfile));
-  state.profiles = loaded.filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-  renderList();
-  els.search.addEventListener("input", renderList);
+  const loaded = await Promise.all(sections.flatMap((section) => section.files.map((file) => loadDocument(file, section))));
+  state.documents = loaded.filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  els.search.addEventListener("input", renderNavigation);
   window.addEventListener("hashchange", selectFromHash);
   selectFromHash();
 }
@@ -50,19 +77,24 @@ function initTheme() {
   });
 }
 
-async function loadProfile(profile) {
+async function loadDocument(file, section) {
   try {
-    const markdown = await fetchMarkdown(profile.file);
-    const data = extractProfile(markdown, profile.file);
-    return { ...profile, ...data, markdown };
+    const markdown = await fetchMarkdown(file);
+    const data = extractDocument(markdown, file, section);
+    return { file, section, ...data, markdown };
   } catch (error) {
     return {
-      ...profile,
-      slug: slugify(profile.file),
-      name: profile.file.split("/").pop().replace(/\.md$/, ""),
+      file,
+      section,
+      slug: slugify(file),
+      name: file.split("/").pop().replace(/\.md$/, ""),
+      title: file,
       type: "Indisponível",
-      searchText: profile.file,
-      markdown: `# ${profile.file}\n\nNão foi possível carregar esta ficha.\n\n${error.message}`
+      category: section.title,
+      image: "",
+      stats: [],
+      searchText: file.toLowerCase(),
+      markdown: `# ${file}\n\nNão foi possível carregar este arquivo.\n\n${error.message}`
     };
   }
 }
@@ -73,35 +105,65 @@ async function fetchMarkdown(path) {
   return response.text();
 }
 
-function extractProfile(markdown, file) {
+function extractDocument(markdown, file, section) {
   const title = markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() || file.split("/").pop().replace(/\.md$/, "");
-  const fields = {};
-  for (const line of markdown.split(/\r?\n/)) {
-    const match = line.match(/^\s*[*-]\s+\*\*(.+?)\*\*:?\s*(.+)$/);
-    if (!match) continue;
-    fields[normalizeKey(match[1])] = match[2].trim();
-  }
-
-  const name = fields.nome || title.replace(/^Guilda:\s*/i, "");
+  const fields = extractFields(markdown);
   const isGuild = /^Guilda:/i.test(title);
-  const type = isGuild
-    ? "Guilda"
-    : [fields["classe de personagem"], fields["tipo de classe"]].filter(Boolean).join(" / ") || "Personagem";
+  const name = fields.nome || title.replace(/^Guilda:\s*/i, "");
+  const category = getCategory(file, section);
+  const type = getDocumentType(fields, section, isGuild, category);
   const image = firstReferenceImage(markdown);
-  const stats = isGuild
-    ? pickStats(fields, ["nível", "fama", "experiência", "cofre da guilda"])
-    : pickStats(fields, ["nível", "raça", "hp", "mp", "gil"]);
+  const stats = getDocumentStats(fields, section, isGuild, category);
 
   return {
     name,
     title,
     type,
+    category,
     image,
     fields,
     stats,
-    slug: slugify(name),
-    searchText: `${name} ${title} ${type} ${Object.values(fields).join(" ")}`.toLowerCase()
+    slug: `${section.slug}-${slugify(name)}`,
+    searchText: `${name} ${title} ${type} ${category} ${Object.values(fields).join(" ")}`.toLowerCase()
   };
+}
+
+function extractFields(markdown) {
+  const fields = {};
+  for (const line of markdown.split(/\r?\n/)) {
+    const listField = line.match(/^\s*[*-]\s+\*\*(.+?)\*\*:?\s*(.+)$/);
+    const plainField = line.match(/^([A-Za-zÀ-ÿ ]+):\s*(.+)$/);
+    const match = listField || plainField;
+    if (!match) continue;
+    fields[normalizeKey(match[1])] = match[2].trim();
+  }
+  return fields;
+}
+
+function getDocumentType(fields, section, isGuild, category) {
+  if (section.slug === "fichas") {
+    if (isGuild) return "Guilda";
+    return [fields["classe de personagem"], fields["tipo de classe"]].filter(Boolean).join(" / ") || "Personagem";
+  }
+  return [category, fields.tipo].filter(Boolean).join(" / ") || section.title;
+}
+
+function getDocumentStats(fields, section, isGuild, category) {
+  if (section.slug === "fichas") {
+    return isGuild
+      ? pickStats(fields, ["nível", "fama", "experiência", "cofre da guilda"])
+      : pickStats(fields, ["nível", "raça", "hp", "mp", "gil"]);
+  }
+  return [
+    { label: "Categoria", value: fields["categoria(s)"] || fields.categoria || category },
+    ...pickStats(fields, ["nível", "tipo", "hp", "pontos de vida", "xp", "gil"])
+  ].filter((item) => item.value);
+}
+
+function getCategory(file, section) {
+  const relative = file.replace(`${section.path}/`, "");
+  const parts = relative.split("/");
+  return parts.length > 1 ? parts[0] : section.title;
 }
 
 function pickStats(fields, keys) {
@@ -111,78 +173,223 @@ function pickStats(fields, keys) {
 }
 
 function firstReferenceImage(markdown) {
+  const markdownImages = [...markdown.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]);
   const links = [...markdown.matchAll(/\[[^\]]+\]\(<?(https?:\/\/[^>)]+)>?\)/g)].map((match) => match[1]);
-  return links.find((url) => /\.(png|jpe?g|webp)(\?|$)/i.test(url)) || links[0] || "";
+  const allLinks = [...markdownImages, ...links];
+  return allLinks.find((url) => /\.(png|jpe?g|webp)(\?|$)/i.test(url)) || allLinks[0] || "";
 }
 
-function renderList() {
+function renderNavigation() {
+  const route = getRoute();
   const query = els.search.value.trim().toLowerCase();
-  const filtered = state.profiles.filter((profile) => !query || profile.searchText.includes(query));
   els.list.innerHTML = "";
+
+  renderHomeLink(route);
+
+  if (!query && route.type === "dashboard") {
+    renderSectionLinks(route);
+    return;
+  }
+
+  const candidates = route.section
+    ? state.documents.filter((document) => document.section.slug === route.section.slug)
+    : state.documents;
+  const filtered = candidates.filter((document) => !query || document.searchText.includes(query));
 
   if (!filtered.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
-    empty.textContent = "Nenhuma ficha encontrada.";
+    empty.textContent = "Nenhum item encontrado.";
     els.list.append(empty);
     return;
   }
 
-  for (const profile of filtered) {
-    const button = document.createElement("button");
-    button.className = `profile-card${profile.slug === state.activeSlug ? " is-active" : ""}`;
-    button.type = "button";
-    button.innerHTML = `<strong>${escapeHtml(profile.name)}</strong><span>${escapeHtml(profile.type)}</span>`;
-    button.addEventListener("click", () => {
-      location.hash = profile.slug;
-    });
-    els.list.append(button);
+  for (const document of filtered) {
+    els.list.append(createNavButton(document.name, document.type, document.slug, document.slug === state.activeSlug));
   }
+}
+
+function renderHomeLink(route) {
+  els.list.append(createNavButton("Início", "FFRPG2", "", route.type === "dashboard"));
+}
+
+function renderSectionLinks(route) {
+  for (const section of sections) {
+    els.list.append(createNavButton(section.title, section.path, `secao-${section.slug}`, route.section?.slug === section.slug));
+  }
+}
+
+function createNavButton(title, subtitle, hash, isActive) {
+  const button = document.createElement("button");
+  button.className = `profile-card${isActive ? " is-active" : ""}`;
+  button.type = "button";
+  button.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(subtitle)}</span>`;
+  button.addEventListener("click", () => {
+    location.hash = hash;
+  });
+  return button;
 }
 
 function selectFromHash() {
-  const wanted = decodeURIComponent(location.hash.replace(/^#/, ""));
-  const sectionProfile = state.profiles.find((item) => wanted.startsWith(`${item.slug}-`));
-  if (sectionProfile) {
-    if (state.activeSlug !== sectionProfile.slug) {
-      state.activeSlug = sectionProfile.slug;
-      renderProfile(sectionProfile);
-      renderList();
-      requestAnimationFrame(() => document.getElementById(wanted)?.scrollIntoView());
+  const route = getRoute();
+  if (route.type === "dashboard") {
+    renderDashboard();
+  } else if (route.type === "section") {
+    renderSection(route.section);
+  } else if (route.type === "section-anchor") {
+    if (state.activeSection !== route.section.slug || state.activeSlug) {
+      renderSection(route.section);
+      requestAnimationFrame(() => document.getElementById(route.hash)?.scrollIntoView());
     }
-    return;
+  } else if (route.type === "document") {
+    renderDocument(route.document);
+  } else if (route.type === "document-section") {
+    if (state.activeSlug !== route.document.slug) {
+      renderDocument(route.document);
+      requestAnimationFrame(() => document.getElementById(route.hash)?.scrollIntoView());
+    }
   }
-
-  const profile = state.profiles.find((item) => item.slug === wanted) || state.profiles[0];
-  if (!profile) return;
-  state.activeSlug = profile.slug;
-  renderProfile(profile);
-  renderList();
+  renderNavigation();
 }
 
-function renderProfile(profile) {
-  els.type.textContent = profile.type;
-  els.name.textContent = profile.name;
-  els.stats.innerHTML = profile.stats
+function getRoute() {
+  const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+  if (!hash) return { type: "dashboard", hash };
+
+  const sectionMatch = hash.match(/^secao-(.+)$/);
+  if (sectionMatch) {
+    const section = sections.find((item) => item.slug === sectionMatch[1]);
+    if (section) return { type: "section", section, hash };
+  }
+
+  const sectionAnchor = sections.find((item) => hash.startsWith(`secao-${item.slug}-`));
+  if (sectionAnchor) {
+    return { type: "section-anchor", section: sectionAnchor, hash };
+  }
+
+  const document = state.documents.find((item) => item.slug === hash);
+  if (document) return { type: "document", document, section: document.section, hash };
+
+  const sectionDocument = state.documents.find((item) => hash.startsWith(`${item.slug}-`));
+  if (sectionDocument) {
+    return { type: "document-section", document: sectionDocument, section: sectionDocument.section, hash };
+  }
+
+  return { type: "dashboard", hash };
+}
+
+function renderDashboard() {
+  state.activeSlug = "";
+  state.activeSection = "";
+  els.content.classList.add("is-gallery");
+  setHero({
+    eyebrow: "Dashboard",
+    title: "FFRPG2",
+    initials: "F2",
+    stats: sections.map((section) => ({
+      label: section.title,
+      value: `${section.files.length} itens`
+    }))
+  });
+  showPortrait("");
+  els.toc.innerHTML = "";
+  els.content.innerHTML = `
+    <section class="dashboard-grid">
+      ${sections.map((section) => sectionCard(section)).join("")}
+    </section>
+  `;
+}
+
+function sectionCard(section) {
+  const categories = [...new Set(section.files.map((file) => getCategory(file, section)))];
+  return `
+    <a class="dashboard-card" href="#secao-${section.slug}">
+      <span>${escapeHtml(section.path)}</span>
+      <strong>${escapeHtml(section.title)}</strong>
+      <p>${escapeHtml(section.description)}</p>
+      <small>${section.files.length} arquivos · ${categories.length} categorias</small>
+    </a>
+  `;
+}
+
+function renderSection(section) {
+  state.activeSlug = "";
+  state.activeSection = section.slug;
+  els.content.classList.add("is-gallery");
+  const documents = state.documents.filter((document) => document.section.slug === section.slug);
+  const categories = [...new Set(documents.map((document) => document.category))];
+  setHero({
+    eyebrow: section.path,
+    title: section.title,
+    initials: section.title.slice(0, 2).toUpperCase(),
+    stats: [
+      { label: "Arquivos", value: documents.length },
+      { label: "Categorias", value: categories.length }
+    ]
+  });
+  showPortrait("");
+  els.toc.innerHTML = categories.map((category) => `<a href="#secao-${section.slug}-${slugify(category)}">${escapeHtml(category)}</a>`).join("");
+  els.content.innerHTML = categories
+    .map((category) => {
+      const items = documents.filter((document) => document.category === category);
+      return `
+        <section class="section-group" id="secao-${section.slug}-${slugify(category)}">
+          <h2>${escapeHtml(category)}</h2>
+          <div class="document-grid">
+            ${items.map((document) => documentCard(document)).join("")}
+          </div>
+        </section>
+      `;
+    })
+    .join("");
+}
+
+function documentCard(document) {
+  return `
+    <a class="document-card" href="#${document.slug}">
+      <strong>${escapeHtml(document.name)}</strong>
+      <span>${escapeHtml(document.type)}</span>
+    </a>
+  `;
+}
+
+function renderDocument(document) {
+  state.activeSlug = document.slug;
+  state.activeSection = document.section.slug;
+  els.content.classList.remove("is-gallery");
+  setHero({
+    eyebrow: document.type,
+    title: document.name,
+    initials: initialsFor(document.name),
+    stats: document.stats
+  });
+  showPortrait(document.image);
+
+  const rendered = renderMarkdown(document.markdown, document.slug);
+  els.content.innerHTML = rendered.html;
+  els.toc.innerHTML = rendered.toc
+    .filter((item) => item.level <= 3)
+    .map((item) => `<a href="#${document.slug}-${item.id}">${escapeHtml(item.text)}</a>`)
+    .join("");
+}
+
+function setHero({ eyebrow, title, initials, stats }) {
+  els.type.textContent = eyebrow;
+  els.name.textContent = title;
+  els.initials.textContent = initials || "F2";
+  els.stats.innerHTML = stats
     .map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`)
     .join("");
+}
 
-  const initials = profile.name
+function initialsFor(name) {
+  return name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
     .join("")
     .toUpperCase();
-  els.initials.textContent = initials || "F2";
-  showPortrait(profile.image);
-
-  const rendered = renderMarkdown(profile.markdown, profile.slug);
-  els.content.innerHTML = rendered.html;
-  els.toc.innerHTML = rendered.toc
-    .filter((item) => item.level <= 3)
-    .map((item) => `<a href="#${profile.slug}-${item.id}">${escapeHtml(item.text)}</a>`)
-    .join("");
 }
 
 function showPortrait(src) {
@@ -204,7 +411,7 @@ function showPortrait(src) {
   els.image.src = src;
 }
 
-function renderMarkdown(markdown, profileSlug) {
+function renderMarkdown(markdown, documentSlug) {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html = [];
   const toc = [];
@@ -212,10 +419,11 @@ function renderMarkdown(markdown, profileSlug) {
   let paragraph = [];
   let inCode = false;
   let codeLines = [];
+  const inlineMarkdown = (text) => inline(text, documentSlug);
 
   const flushParagraph = () => {
     if (!paragraph.length) return;
-    html.push(`<p>${inline(paragraph.join(" "))}</p>`);
+    html.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
     paragraph = [];
   };
 
@@ -260,7 +468,7 @@ function renderMarkdown(markdown, profileSlug) {
       const text = stripInline(heading[2].trim());
       const id = uniqueId(slugify(text), toc);
       toc.push({ level, text, id });
-      html.push(`<h${level} id="${profileSlug}-${id}">${inline(text)}</h${level}>`);
+      html.push(`<h${level} id="${documentSlug}-${id}">${inlineMarkdown(text)}</h${level}>`);
       continue;
     }
 
@@ -268,7 +476,7 @@ function renderMarkdown(markdown, profileSlug) {
     if (quote) {
       flushParagraph();
       closeListsTo(0);
-      html.push(`<blockquote>${inline(quote[1])}</blockquote>`);
+      html.push(`<blockquote>${inlineMarkdown(quote[1])}</blockquote>`);
       continue;
     }
 
@@ -281,7 +489,7 @@ function renderMarkdown(markdown, profileSlug) {
         listStack.push("ul");
       }
       closeListsTo(depth);
-      html.push(`<li>${inline(item[2])}</li>`);
+      html.push(`<li>${inlineMarkdown(item[2])}</li>`);
       continue;
     }
 
@@ -294,11 +502,14 @@ function renderMarkdown(markdown, profileSlug) {
   return { html: html.join("\n"), toc };
 }
 
-function inline(text) {
+function inline(text, documentSlug) {
   return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/\[([^\]]+)\]\(&lt;(.+?)&gt;\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+    .replace(/\[([^\]]+)\]\((#[^)]+)\)/g, (_match, label, href) => {
+      return `<a href="#${documentSlug}-${slugify(href.slice(1))}">${label}</a>`;
+    })
     .replace(/\[([^\]]+)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 
