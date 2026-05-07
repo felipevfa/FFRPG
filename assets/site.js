@@ -441,7 +441,8 @@ function renderMarkdown(markdown, documentSlug) {
     }
   };
 
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     if (/^\s{8,}/.test(line)) {
       flushParagraph();
       closeListsTo(0);
@@ -464,6 +465,15 @@ function renderMarkdown(markdown, documentSlug) {
     if (line.trim() === "") {
       flushParagraph();
       closeListsTo(0);
+      continue;
+    }
+
+    if (isTableStart(lines, index)) {
+      flushParagraph();
+      closeListsTo(0);
+      const table = collectTable(lines, index);
+      html.push(renderTable(table.rows, table.alignments, inlineMarkdown));
+      index = table.endIndex;
       continue;
     }
 
@@ -507,6 +517,63 @@ function renderMarkdown(markdown, documentSlug) {
   flushParagraph();
   closeListsTo(0);
   return { html: html.join("\n"), toc };
+}
+
+function isTableStart(lines, index) {
+  return isTableRow(lines[index]) && isTableSeparator(lines[index + 1]);
+}
+
+function isTableRow(line = "") {
+  return line.trim().startsWith("|") && line.trim().endsWith("|");
+}
+
+function isTableSeparator(line = "") {
+  const cells = splitTableRow(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function collectTable(lines, startIndex) {
+  const rows = [splitTableRow(lines[startIndex])];
+  const alignments = splitTableRow(lines[startIndex + 1]).map(tableAlignment);
+  let index = startIndex + 2;
+  while (isTableRow(lines[index])) {
+    rows.push(splitTableRow(lines[index]));
+    index += 1;
+  }
+  return { rows, alignments, endIndex: index - 1 };
+}
+
+function splitTableRow(line = "") {
+  return line
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
+function tableAlignment(separator) {
+  const trimmed = separator.trim();
+  if (trimmed.startsWith(":") && trimmed.endsWith(":")) return "center";
+  if (trimmed.endsWith(":")) return "right";
+  return "left";
+}
+
+function renderTable(rows, alignments, inlineMarkdown) {
+  const [header, ...body] = rows;
+  const align = (index) => ` style="text-align: ${alignments[index] || "left"}"`;
+  return `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>${header.map((cell, index) => `<th${align(index)}>${inlineMarkdown(cell)}</th>`).join("")}</tr>
+        </thead>
+        <tbody>
+          ${body.map((row) => `<tr>${row.map((cell, index) => `<td${align(index)}>${inlineMarkdown(cell)}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function inline(text, documentSlug) {

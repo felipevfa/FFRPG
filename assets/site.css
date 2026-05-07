@@ -433,6 +433,38 @@ h1 {
   font-family: "SFMono-Regular", Consolas, monospace;
 }
 
+.table-scroll {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.sheet-content table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--field);
+}
+
+.sheet-content th,
+.sheet-content td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.sheet-content th {
+  background: var(--card);
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.sheet-content tr:last-child td {
+  border-bottom: 0;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
