@@ -35,9 +35,8 @@ async function init() {
 }
 
 async function loadProfile(profile) {
-  const paths = [profile.file, `../${profile.file}`];
   try {
-    const markdown = await fetchFirst(paths);
+    const markdown = await fetchMarkdown(profile.file);
     const data = extractProfile(markdown, profile.file);
     return { ...profile, ...data, markdown };
   } catch (error) {
@@ -52,18 +51,10 @@ async function loadProfile(profile) {
   }
 }
 
-async function fetchFirst(paths) {
-  const errors = [];
-  for (const path of paths) {
-    try {
-      const response = await fetch(encodeURI(path));
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      return await response.text();
-    } catch (error) {
-      errors.push(`${path}: ${error.message}`);
-    }
-  }
-  throw new Error(errors.join("; "));
+async function fetchMarkdown(path) {
+  const response = await fetch(encodeURI(path));
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  return response.text();
 }
 
 function extractProfile(markdown, file) {
