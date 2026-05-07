@@ -1,135 +1,128 @@
-# Olho Flutuante
+# Perfil do Monstro
 
-Nível: 7
-XP: 406
-Gil: 161
-Pontos de Vida: 84
-Pontos de Mana: 0
-Medida de Encontro: 2
-Categoria: Aéreo, Demônio
-Família do Monstro: Ahriman
-Frequência: Incomum
-Inteligência: Animal
-Localização: Todas
-Reação: Hostil
-Tamanho: Médio
-Tipo: Regular
-Visão Diurna: 80
-Visão Noturna: 60
-Audição: 40
-Olfato: 20
-Sentido de Vida: 0
-Sentido de Mana: 0
-FOR: 8
-VIT: 8
-VEL: 8
-AGI: 5
-MAG: 8
-ESP: 5
-Precisão: 97
-Precisão Mágica: 123
-Destreza: 67
-Mente: 73
-Armadura: 11
-Armadura Mágica: 9.5
-Evasão: 20
-Evasão Mágica: 20
+* **Nome**: Olho Flutuante
+* **Categoria(s)**: Aéreo, Demônio
+* **Família do Monstro**: Ahriman
+* **Localização**: Todas
 
-![Untitled](Olho%20Flutuante/Untitled.webp)
+* **Aparência**: [imagem ilustrativa](Pictures/olho-flutuante.webp)
 
-### Comportamento
+* **Tamanho**: Médio
+* **Inteligência**: Animal
+* **Reação**: Hostil
+* **Comportamento**: Olhos Flutuantes são monstros simples que anseiam por devorar a energia vital dos seres vivos. Não costumam andar em grupos e, quando andam, abatem sua presa primeiro e depois lutam entre si para ver quem se alimentará do espólio.
 
-Olhos Flutuantes são monstros simples que anseiam por devorar a energia vital dos seres vivos. Não costumam andar em grupos e, quando andam, abatem sua presa primeiro e depois lutam entre si para ver quem se alimentará do espólio.
+* **Frequência**: Incomum
+* **Medida de Encontro**: 2/1
 
-## Drops
+## Sentidos
 
-## Bases
+* **Visão Diurna**: 80
+* **Visão Noturna**: 60
+* **Audição**: 40
+* **Olfato**: 20
+* **Sentido da Vida**: 0
+* **Sentido da Magia**: 0
 
-**Base de Vida:** 1.5
+## Atributos e Estatísticas
 
-**Modificador:** -8 XP, -3 Gil
+* **Nível**: 7
 
-**Base de Armadura:** 1
+* **XP**: 406
+* **Gil**: 161
 
-**Modificador:** 0 XP, 0 Gil
+* **Tipo**: Regular
 
-**Base de Mana:** 0
+### Atributos [Total: 42]
 
-**Modificador:** 0 XP, 0 Gil
+* **Força**: 8
+* **Vitalidade**: 8
+* **Velocidade**: 8
+* **Agilidade**: 5
+* **Magia**: 8
+* **Espírito**: 5
 
-**Base de Armadura Mágica:** 1
+### Estatísticas de Combate
 
-**Modificador:** 0 XP, 0 Gil
+* **HP**: 84 [Base de Vida: 1.5]
+* **MP**: 0 [Base de Mana: 0]
 
-## Ataques
+* **Precisão**: 97
+* **Precisão Mágica**: 123
+* **Destreza**: 67
+* **Mente**: 73
+* **Armadura**: 11 [Base de Armadura: 1]
+* **Armadura Mágica**: 9.5 [Base de Armadura Mágica: 1]
+* **Evasão**: 20
+* **Evasão Mágica**: 20
 
-- **Ataque de Asa —** 1d6+16. CdS: Precisão - Evasão
-    
-    **Tipo:** Ataque Normal (d6)
-    
-    **Alvo:** Único
-    
-    **Atributo:** FOR
-    
-    **Tipo de Dano:** Físico
-    
-    **Fórmula:** 2xFOR + d6
-    
-    **Modificador de XP:** +8 ****
-    
-    **Modificador de Gil:** +3
-    
+## Ataques e Habilidades
 
-## Habilidades de Ação
+### Ataques
 
-n/a
+#### Ataque de Asa
 
-## Magias
+* **Tipo**: Ataque Normal (d6)
+* **Alvo**: Único
+* **Código de Dano**: (2xFOR + d6, Armadura)
+* **Chance de Sucesso**: (Precisão, Evasão)
+* **Modificadores**:
+  * nenhum.
+* **Modificador de XP**: +8
+* **Modificador de Gil**: +3
 
-n/a
+### Habilidades de Ação
 
-## Habilidades dos Jobs
+nenhuma.
 
-n/a
+### Magias
 
-## Habilidades de Movimento
+nenhuma.
 
-- **Movimento Solo**
-    
-    **Modificador de XP:** 0
-    
-    **Modificador de Gil:** 0
-    
-- **Movimento Vôo —** Status: Flight
-    
-    **Modificador de XP:** +20
-    
-    **Modificador de Gil:** +9
-    
+### Habilidades de Classe
 
-## Habilidades de Suporte
+nenhuma.
 
-- **Resistência (Trevas) —** -50% de dano (trevas)
-    
-    **Modificador de XP:** +7
-    
-    **Modificador de Gil:** +3
-    
-- **Fraqueza (Luz) —** +50% de dano (luz)
-    
-    **Modificador de XP:** -9
-    
-    **Modificador de Gil:** -4
-    
+### Habilidades de Movimento
 
-## Habilidades de Reação
+#### Movimento Solo
 
-n/a
+* **Descrição**: O Olho Flutuante é capaz de mover-se pelo solo sem penalidades.
+* **Modificador de XP**: 0
+* **Modificador de Gil**: 0
 
-## Efeitos de Campo
+#### Movimento Voo
 
-n/a
+* **Descrição**: O Olho Flutuante é capaz de voar e recebe o status Flight.
+* **Modificador de XP**: +20
+* **Modificador de Gil**: +9
 
-## Habilidades de Chefes
+### Habilidades de Suporte
 
-n/a
+#### Elemento Resistência: Trevas
+
+* **Descrição**: O Olho Flutuante possui resistência ao elemento trevas, recebendo 50% a menos de dano de ataques oriundos desse elemento.
+* **Modificador de XP**: +7
+* **Modificador de Gil**: +3
+
+#### Elemento Fraqueza: Luz
+
+* **Descrição**: O Olho Flutuante possui fraqueza ao elemento luz, recebendo 50% a mais de dano de ataques oriundos desse elemento.
+* **Modificador de XP**: -9
+* **Modificador de Gil**: -4
+
+### Habilidades de Reação
+
+nenhuma.
+
+### Efeitos de Campo
+
+nenhum.
+
+### Habilidades de Chefe
+
+nenhuma.
+
+## Tabela de Recompensas
+
+nenhuma.

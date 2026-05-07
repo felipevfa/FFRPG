@@ -5,11 +5,11 @@ const sections = [
     path: "FFRPG2/Fichas",
     description: "Personagens, guilda e fichas técnicas da campanha.",
     files: [
-      "FFRPG2/Fichas/Andrus Andradus.md",
-      "FFRPG2/Fichas/Anne.md",
-      "FFRPG2/Fichas/Clarence.md",
-      "FFRPG2/Fichas/Erya Orbless.md",
-      "FFRPG2/Fichas/Ordem do Céu.md"
+      "FFRPG2/Fichas/andrus-andradus.md",
+      "FFRPG2/Fichas/anne.md",
+      "FFRPG2/Fichas/clarence.md",
+      "FFRPG2/Fichas/erya-orbless.md",
+      "FFRPG2/Fichas/ordem-do-ceu.md"
     ]
   },
   {
@@ -18,17 +18,17 @@ const sections = [
     path: "FFRPG2/Bestiário",
     description: "Monstros e encontros, incluindo os arquivos nas subpastas.",
     files: [
-      "FFRPG2/Bestiário/Amorfo/Flan (Azul).md",
-      "FFRPG2/Bestiário/Aquáticos/Sahagin.md",
-      "FFRPG2/Bestiário/Demônio/Lâmia.md",
+      "FFRPG2/Bestiário/Amorfo/flan-azul.md",
+      "FFRPG2/Bestiário/Aquáticos/sahagin.md",
+      "FFRPG2/Bestiário/Demônio/lamia.md",
       "FFRPG2/Bestiário/Demônio/olho-flutuante.md",
-      "FFRPG2/Bestiário/Especiais/Lázaro.md",
-      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Arqueiro).md",
-      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Cavaleiro).md",
-      "FFRPG2/Bestiário/Humanóides/Assassino da Khamja (Ladrão).md",
-      "FFRPG2/Bestiário/Humanóides/Bandido (Alquimista).md",
-      "FFRPG2/Bestiário/Humanóides/Bandido (Cavaleiro).md",
-      "FFRPG2/Bestiário/Humanóides/Goblin.md"
+      "FFRPG2/Bestiário/Especiais/lazaro.md",
+      "FFRPG2/Bestiário/Humanóides/assassino-da-khamja-arqueiro.md",
+      "FFRPG2/Bestiário/Humanóides/assassino-da-khamja-cavaleiro.md",
+      "FFRPG2/Bestiário/Humanóides/assassino-da-khamja-ladrao.md",
+      "FFRPG2/Bestiário/Humanóides/bandido-alquimista.md",
+      "FFRPG2/Bestiário/Humanóides/bandido-cavaleiro.md",
+      "FFRPG2/Bestiário/Humanóides/goblin.md"
     ]
   }
 ];
@@ -112,7 +112,7 @@ function extractDocument(markdown, file, section) {
   const name = fields.nome || title.replace(/^Guilda:\s*/i, "");
   const category = getCategory(file, section);
   const type = getDocumentType(fields, section, isGuild, category);
-  const image = firstReferenceImage(markdown);
+  const image = firstReferenceImage(markdown, file);
   const stats = getDocumentStats(fields, section, isGuild, category);
 
   return {
@@ -172,11 +172,18 @@ function pickStats(fields, keys) {
     .filter((item) => item.value);
 }
 
-function firstReferenceImage(markdown) {
+function firstReferenceImage(markdown, file) {
   const markdownImages = [...markdown.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]);
   const links = [...markdown.matchAll(/\[[^\]]+\]\(<?(https?:\/\/[^>)]+)>?\)/g)].map((match) => match[1]);
   const allLinks = [...markdownImages, ...links];
-  return allLinks.find((url) => /\.(png|jpe?g|webp)(\?|$)/i.test(url)) || allLinks[0] || "";
+  const image = allLinks.find((url) => /\.(png|jpe?g|webp)(\?|$)/i.test(url)) || allLinks[0] || "";
+  return resolveAssetPath(image, file);
+}
+
+function resolveAssetPath(path, file) {
+  if (!path || /^(https?:)?\/\//i.test(path) || path.startsWith("/")) return path;
+  const basePath = file.split("/").slice(0, -1).join("/");
+  return `${basePath}/${decodeURI(path)}`;
 }
 
 function renderNavigation() {
