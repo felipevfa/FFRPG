@@ -145,7 +145,7 @@ function getDocumentType(fields, section, isGuild, category) {
     if (isGuild) return "Guilda";
     return [fields["classe de personagem"], fields["tipo de classe"]].filter(Boolean).join(" / ") || "Personagem";
   }
-  return [category, fields.tipo].filter(Boolean).join(" / ") || section.title;
+  return fields["família do monstro"] || category || section.title;
 }
 
 function getDocumentStats(fields, section, isGuild, category) {
