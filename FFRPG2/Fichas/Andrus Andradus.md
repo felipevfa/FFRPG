@@ -16,24 +16,24 @@
 
 ## Ficha Técnica
 
-* **Nível**: 8
-* **Experiência**: 2.459/4000
-* **Classe de Personagem**: Adepto.
+* **Nível**: 10
+* **Experiência**: 653/5000
+* **Classe de Personagem**: Adepto
 * **Tipo de Classe**: Cavaleiro das Runas
-* **Nível de Classe**: 8
+* **Nível de Classe**: 10
 
-* **HP**: 146 (d10)
-* **MP**: 79 (d6)
+* **HP**: 169 (d10)
+* **MP**: 91 (d6)
 
-* **Gil:** 304
+* **Gil:** 1038
 
-### Atributos [Total: 48 pontos]
+### Atributos [Total: 49 pontos]
 
-* **Força**: 13 [Máximo: 22] [Valor de Teste: 49]
+* **Força**: 14 [Máximo: 22] [Valor de Teste: 52]*
 * **Vitalidade**: 11 [Máximo: 20] [Valor de Teste: 43]
-* **Agilidade**: 8 + 1 = 9 [Máximo: 20] [Valor de Teste: 34 + 3 = 37]*
-* **Velocidade**: 7 [Máximo: 20] [Valor de Teste: 28]
-* **Magia**: 1 [Máximo: 18] [Valor de Teste: 11]
+* **Agilidade**: 8 + 1 = 9 [Máximo: 20] [Valor de Teste: 34 + 3 = 37]
+* **Velocidade**: 7 [Máximo: 20] [Valor de Teste: 31]
+* **Magia**: 1 [Máximo: 18] [Valor de Teste: 13]
 * **Espírito**: 8 [Máximo: 20] [Valor de Teste: 34]
 
 ### Estatísticas de Combate
@@ -41,11 +41,11 @@
 * **Evasão**: 15 + 4 + 1 = 20
 * **Evasão Mágica**: 9 + 1 = 10
 * **Armadura**: 8 + 30% = 10
-* **Armadura Mágica**: 4 + 20% = 5
-* **Destreza**: 70 + 2 = 72
-* **Mente**: 58
-* **Precisão**: 111 + 10 + 2 = 123
-* **Precisão Mágica**: 106
+* **Armadura Mágica**: 4 + 20% = 4
+* **Destreza**: 60 + 18 = 78
+* **Mente**: 60 + 2 = 62
+* **Precisão**: 40 + 18 + 64 + 10 = 132
+* **Precisão Mágica**: 110 + 2 = 112
 
 ### Equipamento
 
@@ -68,17 +68,17 @@ nenhuma.
 
 #### Gerais
 
-* **Prontidão**: 54
+* **Prontidão**: 56
 
 #### Saber
 
-* **Ensinar**: 25
-* **Investigação**: 25
+* **Ensinar**: 26
+* **Investigação**: 27
 * **Língua Comum**: 50
-* **Conhecimento (História)**: 44
-* **Conhecimento (Monstros)**: 48
+* **Conhecimento (História)**: 52
+* **Conhecimento (Monstros)**: 51
 * **Conhecimento (Ivalice)**: 52
-* **Conhecimento (Igreja de Glabados)**: 32
+* **Conhecimento (Igreja de Glabados)**: 34
 
 #### Artísticas
 
@@ -86,14 +86,14 @@ nenhuma.
 
 #### Sociais
 
-* **Liderança**: 54
+* **Liderança**: 57
 * **Etiqueta**: 25
-* **Intimidação**: 25
+* **Intimidação**: 30
 
 #### Técnicas
 
-* **Cura**: 34
-* **Ofício (Armeiro):** 23
+* **Cura**: 35
+* **Ofício (Armeiro):** 25
 
 #### Ladinas
 
@@ -101,7 +101,7 @@ nenhuma.
 
 #### Perícias com Armas
 
-* **Espadas**: 60
+* **Espadas**: 64
 
 #### Selvagens
 
@@ -136,7 +136,7 @@ nenhuma.
 * 3x Poção [Restaura 50 HP] [Venda: 25 gil]
 * 2x Extrato [Resteura 15 MP] [Venda: 37 gil]
 * 3x Tônico [Restaura 25 HP] [Venda: 12 gil]
-* 1x Poção Média [Restaura 125 HP] [Venda: 75 gil]
+* 2x Poção Média [Restaura 125 HP] [Venda: 75 gil]
 * 1x Faca da Cegueira [2xFOR/AGI + d6] [Blind: Toque] [Faca] [Venda: 66 gil]
 * 1x Aço do Crepúsculo [2xFOR + d10] [Toque: Blind]
 #### Materiais
