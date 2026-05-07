@@ -5,14 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FFRPG2 Fichas</title>
     <meta name="description" content="Perfis de personagens e fichas de FFRPG2.">
+    <script>
+      const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      let savedTheme = "";
+      try {
+        savedTheme = localStorage.getItem("ffrpg-theme") || "";
+      } catch (error) {
+        savedTheme = "";
+      }
+      document.documentElement.dataset.theme = savedTheme || preferredTheme;
+    </script>
     <link rel="stylesheet" href="assets/site.css">
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Lista de fichas">
         <header class="sidebar-header">
-          <p class="eyebrow">FFRPG2</p>
-          <h1>Fichas</h1>
+          <div>
+            <p class="eyebrow">FFRPG2</p>
+            <h1>Fichas</h1>
+          </div>
+          <label class="theme-switch">
+            <input id="theme-toggle" type="checkbox" aria-label="Alternar modo escuro">
+            <span aria-hidden="true"></span>
+          </label>
         </header>
 
         <label class="search-box">

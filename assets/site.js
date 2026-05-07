@@ -20,18 +20,34 @@ const els = {
   image: document.querySelector("#profile-image"),
   initials: document.querySelector("#profile-initials"),
   toc: document.querySelector("#profile-toc"),
-  content: document.querySelector("#profile-content")
+  content: document.querySelector("#profile-content"),
+  themeToggle: document.querySelector("#theme-toggle")
 };
 
 init();
 
 async function init() {
+  initTheme();
   const loaded = await Promise.all(profiles.map(loadProfile));
   state.profiles = loaded.filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
   renderList();
   els.search.addEventListener("input", renderList);
   window.addEventListener("hashchange", selectFromHash);
   selectFromHash();
+}
+
+function initTheme() {
+  const theme = document.documentElement.dataset.theme || "light";
+  els.themeToggle.checked = theme === "dark";
+  els.themeToggle.addEventListener("change", () => {
+    const nextTheme = els.themeToggle.checked ? "dark" : "light";
+    document.documentElement.dataset.theme = nextTheme;
+    try {
+      localStorage.setItem("ffrpg-theme", nextTheme);
+    } catch (error) {
+      return;
+    }
+  });
 }
 
 async function loadProfile(profile) {
