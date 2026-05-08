@@ -23,6 +23,10 @@ class Item:
     tier: str
     cost: str
     availability: str
+    description: str
+    damage: str
+    modifiers: str
+    abilities: str
 
     @property
     def availability_value(self) -> int:
@@ -30,7 +34,7 @@ class Item:
 
 
 ITEM_RE = re.compile(
-    r"^- (?P<name>.+?) \((?P<tier>T\d+)?(?:,\s*)?(?P<cost>.+?), (?P<availability>\d+%)\)$"
+    r"^- (?P<name>.+?) \((?P<tier>T\d+)?(?:,\s*)?(?P<cost>.+?), (?P<availability>\d+%)\)(?P<details>.*)$"
 )
 STOPWORDS = {
     "a",
@@ -110,6 +114,7 @@ def parse_items(source: Path) -> list[Item]:
 
         cost = match.group("cost").strip()
         tier = match.group("tier") or "-"
+        details = parse_details(match.group("details"))
         items.append(
             Item(
                 section=section,
@@ -118,10 +123,26 @@ def parse_items(source: Path) -> list[Item]:
                 tier=tier,
                 cost=cost,
                 availability=match.group("availability"),
+                description=details.get("Descrição", ""),
+                damage=details.get("Dano", ""),
+                modifiers=details.get("Modificadores", ""),
+                abilities=details.get("Habilidades", ""),
             )
         )
 
     return items
+
+
+def parse_details(raw: str) -> dict[str, str]:
+    details: dict[str, str] = {}
+    for part in raw.split(" — "):
+        if ":" not in part:
+            continue
+        key, value = part.split(":", 1)
+        key = key.strip(" -—")
+        if key in {"Descrição", "Dano", "Modificadores", "Habilidades"}:
+            details[key] = value.strip()
+    return details
 
 
 def score(item: Item, query: str) -> int:
@@ -165,12 +186,34 @@ def filter_items(items: list[Item], query: str, threshold: int | None) -> list[I
     return [item for item in filtered if score(item, query) > 0]
 
 
-def format_discord(items: list[Item], original_query: str, category_query: str, threshold: int | None, source: Path) -> str:
+def discounted_cost(cost: str, discount: int | None) -> str | None:
+    if discount is None:
+        return None
+
+    match = re.fullmatch(r"(?P<value>\d+) Gil(?P<suffix>.*)", cost)
+    if not match:
+        return None
+
+    value = int(match.group("value"))
+    discounted = round(value * (100 - discount) / 100)
+    return f"{discounted} Gil{match.group('suffix')}"
+
+
+def format_discord(
+    items: list[Item],
+    original_query: str,
+    category_query: str,
+    threshold: int | None,
+    source: Path,
+    discount: int | None,
+) -> str:
     details = []
     if category_query.strip():
         details.append(f"categoria/termo `{category_query}`")
     if threshold is not None:
         details.append(f"disponibilidade mínima `{threshold}%`")
+    if discount is not None:
+        details.append(f"desconto `{discount}%`")
     filter_description = " | ".join(details) if details else "todos"
 
     if not items:
@@ -194,9 +237,20 @@ def format_discord(items: list[Item], original_query: str, category_query: str, 
             lines.append(f"**{group}**")
             current_group = group
 
-        lines.append(
-            f"- **{item.name}** — Tier: `{item.tier}` | Custo: `{item.cost}` | Dispon.: `{item.availability}`"
-        )
+        sale_price = discounted_cost(item.cost, discount)
+        price = sale_price or item.cost
+
+        fields = [f"Custo: `{price}`"]
+        if item.description:
+            fields.append(f"Desc.: {item.description}")
+        if item.damage:
+            fields.append(f"Dano: `{item.damage}`")
+        if item.modifiers:
+            fields.append(f"Mod.: `{item.modifiers}`")
+        if item.abilities:
+            fields.append(f"Hab.: {item.abilities}")
+
+        lines.append(f"- **{item.name}** — " + " | ".join(fields))
 
     return "\n".join(lines)
 
@@ -205,6 +259,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("query", nargs="*", help="Termo de busca, item ou categoria.")
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE, help="Markdown de disponibilidade.")
+    parser.add_argument("--discount", type=int, default=None, help="Percentual de desconto a aplicar ao custo em Gil.")
     args = parser.parse_args()
 
     query = " ".join(args.query).strip()
@@ -215,7 +270,7 @@ def main() -> int:
     items = parse_items(args.source)
     category_query, threshold = split_query(query)
     matches = filter_items(items, category_query, threshold)
-    print(format_discord(matches, query, category_query, threshold, args.source))
+    print(format_discord(matches, query, category_query, threshold, args.source, args.discount))
     return 0
 
 

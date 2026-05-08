@@ -5,7 +5,7 @@ description: Use esta skill quando o usuário pedir uma consulta de itens dispon
 
 # FFRPG2 Loja Discord
 
-Use esta skill para responder consultas sobre itens de loja do FFRPG2 usando o contexto local de disponibilidade. A consulta pode conter uma categoria, um nome parcial de item e/ou um número inteiro de 0 a 100 representando a disponibilidade mínima desejada.
+Use esta skill para responder consultas sobre itens de loja do FFRPG2 usando o contexto local de disponibilidade. A consulta pode conter uma categoria, um nome parcial de item e/ou um número inteiro de 0 a 100 representando a disponibilidade mínima desejada. A saída inclui descrição quando o contexto trouxer esse campo.
 
 ## Fonte primária
 
@@ -30,6 +30,12 @@ Se a pergunta pedir detalhe que não exista nesse Markdown, consulte:
 python3 ffrpg2-loja-discord/scripts/format_shop_items.py "consulta do usuário"
 ```
 
+Para aplicar desconto no preço em Gil, use:
+
+```bash
+python3 ffrpg2-loja-discord/scripts/format_shop_items.py "consulta do usuário" --discount 15
+```
+
 4. Retorne a saída do script sem cercar em bloco de código, salvo se o usuário pedir explicitamente.
 5. Se o script não encontrar resultados, consulte `rulebook.txt` para verificar se o termo existe em outro contexto e diga que ele não está listado como item disponível em loja no arquivo de disponibilidade.
 
@@ -40,7 +46,10 @@ A resposta deve estar pronta para colar no Discord:
 - Cabeçalho curto em negrito.
 - Agrupamento por categoria.
 - Itens em bullets.
+- Para cada item, retornar apenas: nome do item, custo e descrição.
 - Nome do item em negrito.
-- Tier, custo e disponibilidade em monospace.
+- Custo em monospace.
+- Se houver desconto, retornar somente o custo final com desconto; não explicitar o preço original nem dizer que houve desconto.
+- Para equipamentos, incluir também quando disponíveis no contexto: fórmula de dano, modificadores de estatística e habilidades.
 
 Não inclua explicações longas. Quando houver muitos resultados, mantenha todos os itens encontrados, pois a consulta costuma ser usada como lista de compra.
