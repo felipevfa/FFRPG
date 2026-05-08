@@ -30,6 +30,26 @@ const sections = [
       "FFRPG2/Bestiário/Humanóides/bandido-cavaleiro.md",
       "FFRPG2/Bestiário/Humanóides/goblin.md"
     ]
+  },
+  {
+    slug: "missoes",
+    title: "Missões",
+    path: "FFRPG2/Missões/Lista de Missões",
+    description: "Histórico de missões registradas para a campanha.",
+    files: [
+      "FFRPG2/Missões/Lista de Missões/m001-plantas-medicinais.md",
+      "FFRPG2/Missões/Lista de Missões/m002-goblins-goblins-goblins.md",
+      "FFRPG2/Missões/Lista de Missões/m003-preciso-dormir.md",
+      "FFRPG2/Missões/Lista de Missões/m004-esgotos-invadidos.md",
+      "FFRPG2/Missões/Lista de Missões/m005-demonios-na-floresta.md"
+    ]
+  },
+  {
+    slug: "rumores",
+    title: "Rumores",
+    path: "FFRPG2/Rumores",
+    description: "Histórico de rumores, pistas e ganchos descobertos em jogo.",
+    files: []
   }
 ];
 
@@ -110,7 +130,7 @@ function extractDocument(markdown, file, section) {
   const fields = extractFields(markdown);
   const isGuild = /^Guilda:/i.test(title);
   const name = fields.nome || title.replace(/^Guilda:\s*/i, "");
-  const category = getCategory(file, section);
+  const category = getDocumentCategory(file, section, fields);
   const type = getDocumentType(fields, section, isGuild, category);
   const image = firstReferenceImage(markdown, file);
   const stats = getDocumentStats(fields, section, isGuild, category);
@@ -145,6 +165,12 @@ function getDocumentType(fields, section, isGuild, category) {
     if (isGuild) return "Guilda";
     return [fields["classe de personagem"], fields["tipo de classe"]].filter(Boolean).join(" / ") || "Personagem";
   }
+  if (section.slug === "missoes") {
+    return fields.rank ? `Missão Rank ${fields.rank}` : "Missão";
+  }
+  if (section.slug === "rumores") {
+    return fields.status ? `Rumor / ${fields.status}` : "Rumor";
+  }
   return fields["família do monstro"] || category || section.title;
 }
 
@@ -154,10 +180,24 @@ function getDocumentStats(fields, section, isGuild, category) {
       ? pickStats(fields, ["nível", "fama", "experiência", "cofre da guilda"])
       : pickStats(fields, ["nível", "raça", "hp", "mp", "gil"]);
   }
+  if (section.slug === "missoes") {
+    return [
+      ...pickStats(fields, ["rank", "status", "nível recomendado do grupo", "local da missão", "taxa"])
+    ];
+  }
+  if (section.slug === "rumores") {
+    return pickStats(fields, ["status", "origem", "local", "data"]);
+  }
   return [
     { label: "Categoria", value: fields["categoria(s)"] || fields.categoria || category },
     ...pickStats(fields, ["nível", "tipo", "hp", "pontos de vida", "xp", "gil"])
   ].filter((item) => item.value);
+}
+
+function getDocumentCategory(file, section, fields) {
+  if (section.slug === "missoes") return fields.status || "Missões";
+  if (section.slug === "rumores") return fields.status || "Rumores";
+  return getCategory(file, section);
 }
 
 function getCategory(file, section) {
@@ -290,8 +330,8 @@ function renderDashboard() {
   state.activeSection = "";
   els.content.classList.add("is-gallery");
   setHero({
-    eyebrow: "Dashboard",
-    title: "FFRPG2",
+    eyebrow: "Repositório de Campanha",
+    title: "FFRPG2 Wiki",
     initials: "F2",
     stats: sections.map((section) => ({
       label: section.title,
@@ -301,6 +341,10 @@ function renderDashboard() {
   showPortrait("");
   els.toc.innerHTML = "";
   els.content.innerHTML = `
+    <section class="wiki-intro">
+      <h2>Arquivo vivo da campanha</h2>
+      <p>Este hub reúne personagens, monstros, missões e rumores de FFRPG2 em formato de consulta rápida para mesa.</p>
+    </section>
     <section class="dashboard-grid">
       ${sections.map((section) => sectionCard(section)).join("")}
     </section>
@@ -336,6 +380,15 @@ function renderSection(section) {
   });
   showPortrait("");
   els.toc.innerHTML = categories.map((category) => `<a href="#secao-${section.slug}-${slugify(category)}">${escapeHtml(category)}</a>`).join("");
+  if (!documents.length) {
+    els.content.innerHTML = `
+      <section class="empty-section">
+        <h2>${escapeHtml(section.title)}</h2>
+        <p>Ainda não há arquivos Markdown cadastrados em <code>${escapeHtml(section.path)}</code>.</p>
+      </section>
+    `;
+    return;
+  }
   els.content.innerHTML = categories
     .map((category) => {
       const items = documents.filter((document) => document.category === category);

@@ -471,6 +471,28 @@ h1 {
   gap: 18px;
 }
 
+.wiki-intro,
+.empty-section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin-bottom: 18px;
+  padding: 18px;
+}
+
+.wiki-intro h2,
+.empty-section h2 {
+  margin: 0 0 8px;
+  border: 0;
+  padding: 0;
+}
+
+.wiki-intro p,
+.empty-section p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .dashboard-card,
 .document-card {
   display: grid;
