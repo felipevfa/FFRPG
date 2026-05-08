@@ -125,4 +125,14 @@ nenhuma.
 
 ## Tabela de Recompensas
 
-nenhuma.
+| Rolagem   | Recompensa      |
+|:---------:|:---------------:|
+| 51 - 100  | Eye Drops       |
+| 25 - 50   | Tincture        |
+| 08 - 24   | Potion          |
+| 01 - 07   | Light Curtain   |
+
+* **Eye Drops:** Cura o status *Blind*. [Venda: 25 gil]
+* **Tincture:** Recupera 15 MP. [Venda: 37 gil]
+* **Potion:** Recupera 50 HP. [Venda: 25 gil]
+* **Light Curtain:** Lança *Protect*. [Venda: 150 gil]
