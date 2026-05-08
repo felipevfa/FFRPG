@@ -16,3 +16,4 @@ Arquivos de contexto derivados de `rulebook.pdf` para consulta rápida durante p
 | [09-monstros-e-summons.md](09-monstros-e-summons.md) | Criação de monstros, categorias, recompensas e regras de Summons. |
 | [10-narracao-pontos-chave.md](10-narracao-pontos-chave.md) | Pontos Chaves, Peculiaridades e usos narrativos. |
 | [11-disponibilidade-lojas-ffrpg2.md](11-disponibilidade-lojas-ffrpg2.md) | Recomendação de disponibilidade de itens em lojas para FFRPG2. |
+| [12-itens-disponiveis-loja-ffrpg2.md](12-itens-disponiveis-loja-ffrpg2.md) | Lista de itens disponíveis em lojas de FFRPG2 por disponibilidade. |
