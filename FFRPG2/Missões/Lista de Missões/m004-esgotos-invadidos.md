@@ -7,6 +7,7 @@
 -- Jinjin, dono da Lorde de Bronze.
 
 * **Rank:** D
+* **Status:** Concluída
 * **Nível Recomendado do Grupo:** 9
 * **Nível Recomendado (Individual):** 15
 * **Local da Missão:** Gariland

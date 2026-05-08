@@ -9,6 +9,7 @@
 -- Sísifo, um alquimista de Gariland.
 
 **Rank:** E  
+**Status:** Concluída  
 **Nível Recomendado do Grupo:** 1  
 **Nível Recomendado (Individual):** 1  
 **Local da Missão:** Arredores da floresta de Siedge Weald

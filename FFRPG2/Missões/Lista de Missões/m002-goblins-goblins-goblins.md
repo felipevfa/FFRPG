@@ -7,6 +7,7 @@
 -- Matthew.
 
 **Rank:** E  
+**Status:** Concluída  
 **Nível Recomendado do Grupo:** 4  
 **Nível Recomendado (Individual):** 6  
 **Local da Missão:** Mandalia Plains  
