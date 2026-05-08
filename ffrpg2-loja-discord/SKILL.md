@@ -23,7 +23,8 @@ Se a pergunta pedir detalhe que não exista nesse Markdown, consulte:
 2. Se houver um número inteiro de 0 a 100 no prompt, trate-o como disponibilidade mínima. Exemplos:
    - `Katana 85` retorna itens da categoria Katana com disponibilidade de 85% ou mais.
    - `retorne todos os itens de disponibilidade 50%` retorna todos os itens do Markdown com disponibilidade de 50% ou mais.
-   - Como o arquivo de referência atual lista apenas itens entre 75% e 100%, filtros abaixo de 75% retornam todos os itens cadastrados, salvo quando houver uma categoria/termo adicional.
+   - Antes de consultar, aplique o piso de Índice de Disponibilidade em `Sistema/Contexto/11-disponibilidade-lojas-ffrpg2.md`: `92 - (nível médio do grupo x 1.25)`. O nível médio atual é calculado entre Andrus Andradus e Erya Orbless.
+   - Com Andrus e Erya no nível 10, o piso operacional atual é 80%. Portanto, filtros abaixo de 80% devem ser tratados como 80% quando o Índice de Disponibilidade for relevante.
 3. Rode o script:
 
 ```bash

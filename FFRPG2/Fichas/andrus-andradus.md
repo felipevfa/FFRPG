@@ -133,12 +133,14 @@ nenhuma.
 
 ## Inventário
 
-* 3x Poção [Restaura 50 HP] [Venda: 25 gil]
+* 4x Poção [Restaura 50 HP] [Venda: 25 gil]
 * 2x Extrato [Resteura 15 MP] [Venda: 37 gil]
 * 3x Tônico [Restaura 25 HP] [Venda: 12 gil]
 * 2x Poção Média [Restaura 125 HP] [Venda: 75 gil]
 * 1x Faca da Cegueira [2xFOR/AGI + d6] [Blind: Toque] [Faca] [Venda: 66 gil]
 * 1x Aço do Crepúsculo [2xFOR + d10] [Toque: Blind]
+* 1x Eye Drops [Cancela *Blind*] [Venda: 25 gil]
+* 1x Light Curtain [Lança *Protect*] [Venda: 150 gil]
 #### Materiais
 
 - 1x  Escamas de Sahagin [5 CP] [Tier 1] [Venda: 25 gil]

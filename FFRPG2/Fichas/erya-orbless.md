@@ -198,9 +198,10 @@ n/a
 
 ### Inventário
 
-* 2x Poção [Restaura 50 HP] [Venda: 25 gil]
-* 4x Extrato [Restaura 15 MP] [Venda: 37 gil]
+* 3x Poção [Restaura 50 HP] [Venda: 25 gil]
+* 5x Extrato [Restaura 15 MP] [Venda: 37 gil]
 * 1x Faca da Cegueira [2x(AGI/FOR) + d6] [Toque: Blind] [Venda: 66 gil]
+* 1x Light Curtain [Lança *Protect*] [Venda: 150 gil]
 
 #### Materiais
 

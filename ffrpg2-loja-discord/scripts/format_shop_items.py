@@ -13,6 +13,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE = REPO_ROOT / "Sistema" / "Contexto" / "12-itens-disponiveis-loja-ffrpg2.md"
+PARTY_LEVEL_FILES = [
+    REPO_ROOT / "FFRPG2" / "Fichas" / "andrus-andradus.md",
+    REPO_ROOT / "FFRPG2" / "Fichas" / "erya-orbless.md",
+]
 
 
 @dataclass(frozen=True)
@@ -92,6 +96,23 @@ def split_query(query: str) -> tuple[str, int | None]:
     if not tokens(stripped):
         stripped = ""
     return stripped, threshold
+
+
+def current_availability_floor() -> int:
+    levels = []
+    for path in PARTY_LEVEL_FILES:
+        if not path.exists():
+            continue
+        match = re.search(r"\*\s+\*\*Nível\*\*:\s*(\d+)", path.read_text(encoding="utf-8"))
+        if match:
+            levels.append(int(match.group(1)))
+
+    if not levels:
+        return 0
+
+    average_level = sum(levels) / len(levels)
+    floor = 92 - (average_level * 1.25)
+    return int(-(-floor // 1))
 
 
 def parse_items(source: Path) -> list[Item]:
@@ -175,6 +196,12 @@ def score(item: Item, query: str) -> int:
     return result
 
 
+def effective_threshold(threshold: int | None, floor: int) -> int | None:
+    if threshold is None:
+        return None
+    return max(threshold, floor)
+
+
 def filter_items(items: list[Item], query: str, threshold: int | None) -> list[Item]:
     filtered = items
     if threshold is not None:
@@ -204,6 +231,7 @@ def format_discord(
     original_query: str,
     category_query: str,
     threshold: int | None,
+    requested_threshold: int | None,
     source: Path,
     discount: int | None,
 ) -> str:
@@ -211,7 +239,10 @@ def format_discord(
     if category_query.strip():
         details.append(f"categoria/termo `{category_query}`")
     if threshold is not None:
-        details.append(f"disponibilidade mínima `{threshold}%`")
+        if requested_threshold is not None and threshold != requested_threshold:
+            details.append(f"disponibilidade mínima `{threshold}%` (piso aplicado sobre `{requested_threshold}%`)")
+        else:
+            details.append(f"disponibilidade mínima `{threshold}%`")
     if discount is not None:
         details.append(f"desconto `{discount}%`")
     filter_description = " | ".join(details) if details else "todos"
@@ -269,8 +300,11 @@ def main() -> int:
 
     items = parse_items(args.source)
     category_query, threshold = split_query(query)
+    floor = current_availability_floor()
+    requested_threshold = threshold
+    threshold = effective_threshold(threshold, floor)
     matches = filter_items(items, category_query, threshold)
-    print(format_discord(matches, query, category_query, threshold, args.source, args.discount))
+    print(format_discord(matches, query, category_query, threshold, requested_threshold, args.source, args.discount))
     return 0
 
 
