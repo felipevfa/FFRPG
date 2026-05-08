@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""Format FFRPG2 shop availability entries for Discord."""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+import unicodedata
+from dataclasses import dataclass
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_SOURCE = REPO_ROOT / "Sistema" / "Contexto" / "12-itens-disponiveis-loja-ffrpg2.md"
+
+
+@dataclass(frozen=True)
+class Item:
+    section: str
+    category: str
+    name: str
+    tier: str
+    cost: str
+    availability: str
+
+    @property
+    def availability_value(self) -> int:
+        return int(self.availability.rstrip("%"))
+
+
+ITEM_RE = re.compile(
+    r"^- (?P<name>.+?) \((?P<tier>T\d+)?(?:,\s*)?(?P<cost>.+?), (?P<availability>\d+%)\)$"
+)
+STOPWORDS = {
+    "a",
+    "as",
+    "com",
+    "consulta",
+    "comprar",
+    "da",
+    "de",
+    "disponiveis",
+    "disponivel",
+    "disponibilidade",
+    "do",
+    "dos",
+    "e",
+    "em",
+    "ffrpg2",
+    "item",
+    "itens",
+    "loja",
+    "na",
+    "no",
+    "o",
+    "os",
+    "para",
+    "porcento",
+    "retorne",
+    "retornar",
+    "todos",
+    "todas",
+}
+AVAILABILITY_RE = re.compile(r"(?<![A-Za-z])(?P<value>100|\d{1,2})\s*%?")
+
+
+def normalize(value: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", value)
+    ascii_text = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return ascii_text.casefold()
+
+
+def tokens(value: str) -> list[str]:
+    return [token for token in re.findall(r"[a-z0-9]+", normalize(value)) if token not in STOPWORDS]
+
+
+def split_query(query: str) -> tuple[str, int | None]:
+    """Return category/item query plus an optional minimum availability threshold."""
+    matches = list(AVAILABILITY_RE.finditer(query))
+    if not matches:
+        stripped = query.strip()
+        return (stripped if tokens(stripped) else ""), None
+
+    match = matches[-1]
+    threshold = int(match.group("value"))
+    stripped = f"{query[:match.start()]} {query[match.end():]}".strip()
+    if not tokens(stripped):
+        stripped = ""
+    return stripped, threshold
+
+
+def parse_items(source: Path) -> list[Item]:
+    section = ""
+    category = ""
+    items: list[Item] = []
+
+    for line in source.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            section = line.removeprefix("## ").strip()
+            category = ""
+            continue
+        if line.startswith("### "):
+            category = line.removeprefix("### ").strip()
+            continue
+
+        match = ITEM_RE.match(line.strip())
+        if not match:
+            continue
+
+        cost = match.group("cost").strip()
+        tier = match.group("tier") or "-"
+        items.append(
+            Item(
+                section=section,
+                category=category or section,
+                name=match.group("name").strip(),
+                tier=tier,
+                cost=cost,
+                availability=match.group("availability"),
+            )
+        )
+
+    return items
+
+
+def score(item: Item, query: str) -> int:
+    if not query.strip() or normalize(query.strip()) in {"all", "todos", "tudo", "*"}:
+        return 1
+
+    haystacks = [
+        normalize(item.name),
+        normalize(item.category),
+        normalize(item.section),
+        normalize(f"{item.section} {item.category} {item.name} {item.tier} {item.cost} {item.availability}"),
+    ]
+    query_norm = normalize(query)
+    query_tokens = tokens(query)
+    if not query_tokens:
+        return 0
+
+    result = 0
+    if query_norm in haystacks[0]:
+        result += 8
+    if query_norm in haystacks[1]:
+        result += 6
+    if query_norm in haystacks[2]:
+        result += 4
+
+    combined = haystacks[3]
+    if all(token in combined for token in query_tokens):
+        result += len(query_tokens)
+
+    return result
+
+
+def filter_items(items: list[Item], query: str, threshold: int | None) -> list[Item]:
+    filtered = items
+    if threshold is not None:
+        filtered = [item for item in filtered if item.availability_value >= threshold]
+
+    if not query.strip() and threshold is not None:
+        return filtered
+
+    return [item for item in filtered if score(item, query) > 0]
+
+
+def format_discord(items: list[Item], original_query: str, category_query: str, threshold: int | None, source: Path) -> str:
+    details = []
+    if category_query.strip():
+        details.append(f"categoria/termo `{category_query}`")
+    if threshold is not None:
+        details.append(f"disponibilidade mínima `{threshold}%`")
+    filter_description = " | ".join(details) if details else "todos"
+
+    if not items:
+        return (
+            f"**Itens de loja FFRPG2 - consulta:** `{original_query}`\n"
+            f"Filtro: {filter_description}\n"
+            "Nenhum item encontrado em `Sistema/Contexto/12-itens-disponiveis-loja-ffrpg2.md`."
+        )
+
+    lines = [
+        f"**Itens de loja FFRPG2 - consulta:** `{original_query or 'todos'}`",
+        f"Filtro: {filter_description}",
+        f"Fonte: `{source.relative_to(REPO_ROOT)}`",
+    ]
+
+    current_group = None
+    for item in items:
+        group = f"{item.section} / {item.category}" if item.section != item.category else item.section
+        if group != current_group:
+            lines.append("")
+            lines.append(f"**{group}**")
+            current_group = group
+
+        lines.append(
+            f"- **{item.name}** — Tier: `{item.tier}` | Custo: `{item.cost}` | Dispon.: `{item.availability}`"
+        )
+
+    return "\n".join(lines)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("query", nargs="*", help="Termo de busca, item ou categoria.")
+    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE, help="Markdown de disponibilidade.")
+    args = parser.parse_args()
+
+    query = " ".join(args.query).strip()
+    if not args.source.exists():
+        print(f"Arquivo de origem não encontrado: {args.source}", file=sys.stderr)
+        return 2
+
+    items = parse_items(args.source)
+    category_query, threshold = split_query(query)
+    matches = filter_items(items, category_query, threshold)
+    print(format_discord(matches, query, category_query, threshold, args.source))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
